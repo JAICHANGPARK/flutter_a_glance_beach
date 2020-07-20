@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+Future fetchBeachCongestion() async{
 
+
+
+}
 void main() {
   runApp(MyApp());
 }
@@ -14,7 +18,10 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      
+      initialRoute: "/",
+      routes: {
+        "/": (context) => BeachApp()
+      },
     );
   }
 }
@@ -26,8 +33,13 @@ class BeachApp extends StatefulWidget {
 
 class _BeachAppState extends State<BeachApp> {
   @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+  }
+  @override
   Widget build(BuildContext context) {
-    return Container();
+    return Scaffold();
   }
 }
 
