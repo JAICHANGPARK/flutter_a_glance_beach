@@ -1,9 +1,16 @@
+
+
 import 'package:flutter/material.dart';
-Future fetchBeachCongestion() async{
+import 'package:http/http.dart' as http;
 
+Future fetchBeachCongestion() async {
+  var response = await http.get('https://seantour.com/seantour_map/travel/getBeachCongestionApi.do');
 
-
+  if(response.statusCode == 200){
+print(response.body.toString());
+  }
 }
+
 void main() {
   runApp(MyApp());
 }
@@ -19,9 +26,7 @@ class MyApp extends StatelessWidget {
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       initialRoute: "/",
-      routes: {
-        "/": (context) => BeachApp()
-      },
+      routes: {"/": (context) => BeachApp()},
     );
   }
 }
@@ -36,10 +41,11 @@ class _BeachAppState extends State<BeachApp> {
   void initState() {
     // TODO: implement initState
     super.initState();
+    fetchBeachCongestion();
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold();
   }
 }
-
