@@ -34,18 +34,20 @@ class _IntroPageState extends State<IntroPage> {
           ),
           Positioned(
             left: 0,
-            top: 64,
+            top: 140,
             right: 0,
+            bottom: 24,
             child: Center(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text("모해", style: TextStyle(
-                      fontSize: 120,
+                  Text("바다일기", style: TextStyle(
+                      fontSize: 84,
                       color: Colors.white
                   ),),
                   Text("모두의 해수욕장", style: TextStyle(
-                      fontSize: 32,
+                      fontSize: 24,
                       color: Colors.white
                   ),),
                 ],
