@@ -1,7 +1,9 @@
 import 'dart:convert';
 
+import 'package:backdrop/backdrop.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_a_glacne_beach/model/beach_congestion.dart';
+import 'package:flutter_a_glacne_beach/ui/web_view_page.dart';
 import 'package:http/http.dart' as http;
 
 import 'ui/intro_page.dart';
@@ -74,22 +76,31 @@ List<Beach0> changeBeachObjectToList(BeachCongestion beachCongestion) {
 Widget _buildLight(int beachId, int population) {
   String lightColor = calculateTrafficLight(beachId, population);
   Color _color;
+  String _state;
+
   switch (lightColor) {
     case "green":
       _color = Colors.green;
+      _state = "원할";
       break;
     case "yellow":
       _color = Colors.yellow;
+      _state = "주의";
       break;
     case "red":
       _color = Colors.red;
-      break;
+      _state = "혼잡";
+     break;
     default:
       _color = Colors.grey;
       break;
   }
   return CircleAvatar(
+    radius: 24,
     backgroundColor: _color,
+    child: Text(_state ?? "", style: TextStyle(
+      color: Colors.white
+    ),),
   );
 }
 
@@ -564,8 +575,7 @@ class MyApp extends StatelessWidget {
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       initialRoute: "/",
-      routes: {"/": (context) => IntroPage(),
-      "/home" : (context) => BeachApp()},
+      routes: {"/": (context) => IntroPage(), "/home": (context) => BeachApp()},
     );
   }
 }
@@ -583,6 +593,7 @@ class _BeachAppState extends State<BeachApp> {
   void initState() {
     // TODO: implement initState
     super.initState();
+
     fetchBeachCongestion().then((value) {
       _beachCongestion = value;
       print(_beachCongestion);
@@ -590,10 +601,255 @@ class _BeachAppState extends State<BeachApp> {
       print(_beachList.length);
       setState(() {});
     });
+    Future.delayed(Duration(seconds: 2), (){
+      showDialog(context: context, builder: (context)=> AlertDialog(
+        contentPadding: EdgeInsets.all(4),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Image.asset("assets/beach_guide.jpg", width: MediaQuery.of(context).size.width,),
+            Text("출처: 질병관리본부")
+          ],
+        ),
+      ));
+    });
   }
+
 
   @override
   Widget build(BuildContext context) {
+
+    return BackdropScaffold(
+      appBar: BackdropAppBar(
+        backgroundColor: Colors.lightBlue,
+        title: Text("바다일기"),
+        actions: <Widget>[
+          IconButton(
+            color: Colors.white,
+            icon: Icon(Icons.filter_list),
+            onPressed: (){
+              _beachList.sort((a, b) => b.uniqPop.compareTo(a.uniqPop));
+              setState(() {
+              });
+            },
+          )
+        ],
+
+      ),
+      backLayer: Container(
+        height: MediaQuery.of(context).size.height - 120,
+        width: MediaQuery.of(context).size.width,
+        color: Colors.lightBlue,
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Card(
+                  elevation: 8,
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text("해수욕장 혼잡도 신호등", style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),),
+                        SizedBox(height: 24,),
+                        Row(
+                          children: [
+                            CircleAvatar(
+                              backgroundColor: Colors.red,
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Text(
+                                "혼잡 (방문 자제)",
+                                style: TextStyle(
+                                  fontSize: 18,
+                                ),
+                              ),
+                            )
+                          ],
+                        ), SizedBox(height: 24,),
+                        Row(
+                          children: [
+                            CircleAvatar(
+                              backgroundColor: Colors.yellow,
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Text(
+                                "주의 (방문 주의)",
+                                style: TextStyle(
+                                  fontSize: 18,
+                                ),
+                              ),
+                            )
+                          ],
+                        ), SizedBox(height: 24,),
+                        Row(
+                          children: [
+                            CircleAvatar(
+                              backgroundColor: Colors.green,
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Text(
+                                "원할 (사회적 거리두기 가능)",
+                                style: TextStyle(
+                                  fontSize: 18,
+                                ),
+                              ),
+                            )
+                          ],
+                        )
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: SizedBox(
+                  width: MediaQuery.of(context).size.width,
+                  child: Card(
+                    elevation: 4,
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text("기준시각", style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                          ),),
+                          _beachList.length > 0 ?
+                          Text("${_beachList[0].etlDt.substring(0,4)}년"
+                              " ${_beachList[0].etlDt.substring(4,6)}월"
+                              " ${_beachList[0].etlDt.substring(6,8)}일"
+                              " ${_beachList[0].etlDt.substring(8,10)}시"
+                              " ${_beachList[0].etlDt.substring(10)}분") : Text(""),
+                          Divider(
+                            color: Colors.grey,
+                          ),
+                          Text("정보제공기관", style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                          ),),
+                          Text("해양수산부")
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(
+                width: MediaQuery.of(context).size.width,
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Card(
+                    elevation: 4,
+                    child:Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text("물놀이 안전 수칙 & 사회적 거리 두기 1단계"),
+                              IconButton(
+                                icon: Icon(Icons.keyboard_arrow_right),
+                                onPressed: (){
+                                  Navigator.of(context).push(MaterialPageRoute(
+                                    builder: (context) => WebViewPage()
+                                  ));
+                                },
+                              )
+                            ],
+                          )
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: SizedBox(
+                  width: MediaQuery.of(context).size.width,
+                  child: Card(
+                    elevation: 4,
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text("개발", style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      ),),
+                          Text("박제창 (@Dreamwalker)")
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+      frontLayer: Container(
+        height: MediaQuery.of(context).size.height,
+        width: MediaQuery.of(context).size.width,
+       child: SafeArea(
+//        child: Placeholder(),
+          child: _beachList.length > 0
+              ? RefreshIndicator(
+            onRefresh: () async {
+              if (_beachList.length > 0) {
+                setState(() {
+                  _beachList.clear();
+                });
+              }
+              _beachCongestion = await fetchBeachCongestion();
+              _beachList = changeBeachObjectToList(_beachCongestion);
+              setState(() {});
+            },
+            child: _beachList[0] != null ? ListView.separated(
+                shrinkWrap: true,
+                separatorBuilder: (context, index) {
+                  return Divider(
+                    color: Colors.grey,
+                    height: 0,
+                  );
+                },
+                itemCount: _beachList.length,
+                itemBuilder: (context, index) {
+                  return Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: ListTile(
+                      title: Text("${_beachList[index].poiNm}"),
+                      trailing: _buildLight(_beachList[index].seqId, _beachList[index].uniqPop),
+                      subtitle: Text("예상 인원: ${_beachList[index].uniqPop}"),
+                    ),
+                  );
+                }) : Card(
+              child: Center(
+                child: Text("오류가 발생했습니다. 다시 시도해주세요", style: TextStyle(
+                  fontSize: 24
+                ),),
+              ),
+            ),
+          )
+              : Center(
+            child: CircularProgressIndicator(),
+          ),
+        ),
+      ),
+    );
     return Scaffold(
       body: SafeArea(
 //        child: Placeholder(),
@@ -614,22 +870,37 @@ class _BeachAppState extends State<BeachApp> {
                     Expanded(
                       flex: 2,
                       child: Card(
-                        child: Column(
-                          children: [
-                            Row(
-                              children: [
-                                CircleAvatar(),
-                                Text("")
-                              ],
-                            )
-                          ],
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text("해수욕장 혼잡도 신호등"),
+                              Row(
+                                children: [
+                                  CircleAvatar(
+                                    backgroundColor: Colors.red,
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Text(
+                                      "혼잡 (방문자제)",
+                                      style: TextStyle(
+                                        fontSize: 18,
+                                      ),
+                                    ),
+                                  )
+                                ],
+                              )
+                            ],
+                          ),
                         ),
                       ),
                     ),
                     Expanded(
                       flex: 10,
                       child: ListView.separated(
-                        shrinkWrap: true,
+                          shrinkWrap: true,
                           separatorBuilder: (context, index) {
                             return Divider(
                               color: Colors.grey,
@@ -655,4 +926,3 @@ class _BeachAppState extends State<BeachApp> {
     );
   }
 }
-
