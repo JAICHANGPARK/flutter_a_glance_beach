@@ -609,21 +609,44 @@ class _BeachAppState extends State<BeachApp> {
                   _beachList = changeBeachObjectToList(_beachCongestion);
                   setState(() {});
                 },
-                child: ListView.separated(
-                    separatorBuilder: (context, index) {
-                      return Divider(
-                        color: Colors.grey,
-                      );
-                    },
-                    itemCount: _beachList.length,
-                    itemBuilder: (context, index) {
-                      return ListTile(
-                        title: Text("(${_beachList[index].poiNm}(${_beachList[index].seqId})"),
-                        trailing: _buildLight(_beachList[index].seqId, _beachList[index].uniqPop),
-                        subtitle: Text("갱신: ${_beachList[index].etlDt}"),
-                        leading: Text(_beachList[index].congestion),
-                      );
-                    }),
+                child: Column(
+                  children: [
+                    Expanded(
+                      flex: 2,
+                      child: Card(
+                        child: Column(
+                          children: [
+                            Row(
+                              children: [
+                                CircleAvatar(),
+                                Text("")
+                              ],
+                            )
+                          ],
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      flex: 10,
+                      child: ListView.separated(
+                        shrinkWrap: true,
+                          separatorBuilder: (context, index) {
+                            return Divider(
+                              color: Colors.grey,
+                            );
+                          },
+                          itemCount: _beachList.length,
+                          itemBuilder: (context, index) {
+                            return ListTile(
+                              title: Text("(${_beachList[index].poiNm}(${_beachList[index].seqId})"),
+                              trailing: _buildLight(_beachList[index].seqId, _beachList[index].uniqPop),
+                              subtitle: Text("갱신: ${_beachList[index].etlDt}"),
+                              leading: Text(_beachList[index].congestion),
+                            );
+                          }),
+                    ),
+                  ],
+                ),
               )
             : Center(
                 child: CircularProgressIndicator(),
