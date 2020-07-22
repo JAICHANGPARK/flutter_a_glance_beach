@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_a_glacne_beach/model/beach_congestion.dart';
 import 'package:http/http.dart' as http;
 
+import 'ui/intro_page.dart';
+
 Future<BeachCongestion> fetchBeachCongestion() async {
   var response = await http.get('https://seantour.com/seantour_map/travel/getBeachCongestionApi.do');
 
@@ -68,10 +70,11 @@ List<Beach0> changeBeachObjectToList(BeachCongestion beachCongestion) {
   bList.add(beachCongestion.beach49);
   return bList;
 }
-Widget _buildLight(int beachId, int population){
+
+Widget _buildLight(int beachId, int population) {
   String lightColor = calculateTrafficLight(beachId, population);
   Color _color;
-  switch(lightColor){
+  switch (lightColor) {
     case "green":
       _color = Colors.green;
       break;
@@ -85,8 +88,11 @@ Widget _buildLight(int beachId, int population){
       _color = Colors.grey;
       break;
   }
-  return CircleAvatar(backgroundColor: _color,);
+  return CircleAvatar(
+    backgroundColor: _color,
+  );
 }
+
 String calculateTrafficLight(int beachId, int population) {
   var returnStr = '';
   if (beachId == 1) {
@@ -552,13 +558,14 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: '바다일기',
       theme: ThemeData(
         primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       initialRoute: "/",
-      routes: {"/": (context) => BeachApp()},
+      routes: {"/": (context) => IntroPage(),
+      "/home" : (context) => BeachApp()},
     );
   }
 }
@@ -578,7 +585,9 @@ class _BeachAppState extends State<BeachApp> {
     super.initState();
     fetchBeachCongestion().then((value) {
       _beachCongestion = value;
+      print(_beachCongestion);
       _beachList = changeBeachObjectToList(_beachCongestion);
+      print(_beachList.length);
       setState(() {});
     });
   }
@@ -587,6 +596,7 @@ class _BeachAppState extends State<BeachApp> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
+//        child: Placeholder(),
         child: _beachList.length > 0
             ? RefreshIndicator(
                 onRefresh: () async {
@@ -608,7 +618,7 @@ class _BeachAppState extends State<BeachApp> {
                     itemCount: _beachList.length,
                     itemBuilder: (context, index) {
                       return ListTile(
-                        title: Text("${_beachList[index].poiNm}(${_beachList[index].seqId})"),
+                        title: Text("(${_beachList[index].poiNm}(${_beachList[index].seqId})"),
                         trailing: _buildLight(_beachList[index].seqId, _beachList[index].uniqPop),
                         subtitle: Text("갱신: ${_beachList[index].etlDt}"),
                         leading: Text(_beachList[index].congestion),
@@ -622,3 +632,4 @@ class _BeachAppState extends State<BeachApp> {
     );
   }
 }
+
